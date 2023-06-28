@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+
+  mysql:
+    container_name: docker_db
+    image: 'mysql:8'
+    command: '--default-authentication-plugin=mysql_native_password'
+    restart: always
+    healthcheck:
+      test: ['CMD-SHELL', 'mysqladmin ping -h 127.0.0.1 --password=password --silent']
+      interval: 3s
+      retries: 5
+      start_period: 30s
+    volumes:
+      - './database/data:/var/lib/mysql'
+    ports:
+      - '3308:3306'
+    networks:
+      backend:
+        ipv4_address: 192.20.0.6
+    environment:
+      MYSQL_DATABASE: project
+      MYSQL_ROOT_PASSWORD: password
+
+  web:
+    container_name: docker_django    
+    build:
+      context: backend          
+    depends_on:
+      mysql:
+        condition: service_healthy
+    working_dir: /code/backend
+    command: >
+      bash -c "python3 manage.py makemigrations
+      && python3 manage.py migrate
+      && python3 manage.py makemigrations miapp
+      && python3 manage.py migrate
+      && python3 manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/code
+    ports:
+      - '8085:8000'
+    expose:
+      - '8000'
+    links:
+      - mysql
+    networks:
+      backend:
+        ipv4_address: 192.20.0.5
+
+  frontend:
+    container_name: docker_react
+    build:
+      context: frontend    
+      target: development
+    working_dir: /code/frontend
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend/src:/code/src
+      - /code/node_modules
+    networks:
+      backend:
+        ipv4_address: 192.20.0.7
+    depends_on:
+      - web
+    environment:
+       - CHOKIDAR_USEPOLLING=true
+
+
+networks:
+  backend:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.20.0.0/24
