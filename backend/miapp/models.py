@@ -1,13 +1,5 @@
 from django.db import models
 
-
-# class ChatBot(models.Model):
-#     id = models.AutoField(primary_key=True)
-#     fecha = models.DateTimeField(auto_now_add=True)
-#     origen = models.CharField(max_length=30)
-#     mensaje = models.CharField(max_length=200)
-
-
 class ChatSession(models.Model):
     chatSessionId = models.AutoField(primary_key=True)    
     chatSessionDate = models.DateTimeField(auto_now_add=True)

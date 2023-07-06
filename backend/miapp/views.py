@@ -14,6 +14,7 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain.document_loaders import PyPDFDirectoryLoader
 from langchain.vectorstores import Chroma
 
+from .serializers import ChatSessionSerializer, ChatSessionMessageSerializer
 from .models import ChatSession, ChatSessionMessage
 
 # Create your views here.
@@ -142,3 +143,51 @@ Human: {question}
                   'message': e.args,
                   'content': None
                }, status=400)      
+      
+
+class ChatSessionMessageView(ListCreateAPIView):
+   serializer_class = ChatSessionMessageSerializer
+
+   def post(self, request: Request):
+      try:
+          
+         chat_session = ChatSession.objects.get(chatSessionId=request.data.get("chatSessionId"))
+         chat_session_message_query = request.data.get("chatSessionMessageQuery")
+         chat_session_message_result = request.data.get("chatSessionMessageResult")         
+         
+         chat_session_message = ChatSessionMessage.objects.create(chatSession=chat_session, chatSessionMessageQuery=chat_session_message_query, chatSessionMessageResult=chat_session_message_result)
+         chat_session_message.save()
+
+         serializer = self.serializer_class(instance=chat_session_message)
+         serialized_data = serializer.data
+      
+         return Response(data={
+                              'message': None,
+                              'content': serialized_data
+                        }, status=status.HTTP_201_CREATED)
+
+      except Exception as e:
+               return Response(data={
+                  'message': e.args,
+                  'content': None
+               }, status=400)      
+      
+
+   def get(self, request: Request):
+      try:
+            # Retorna todos los chat_session_message de una sesionId
+            id = request.query_params.get('id')
+            chat_session = ChatSession.objects.get(chatSessionId=id)
+            chat_session_messages = ChatSessionMessage.objects.filter(chatSession=chat_session)
+            serializer = self.serializer_class(instance=chat_session_messages, many=True)
+            serialized_data = serializer.data
+
+            return Response(data={
+                                 'message': None,
+                                 'content': serialized_data
+                           }, status=status.HTTP_200_OK)
+      except Exception as e:
+               return Response(data={
+                  'message': e.args,
+                  'content': None
+               }, status=400)
