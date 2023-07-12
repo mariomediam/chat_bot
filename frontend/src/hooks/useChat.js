@@ -25,8 +25,9 @@ export const useChat = () => {
 
   const onSubmitForm = useCallback((event) => {
     event.preventDefault()
-    setMessages((prevMessages) => [...prevMessages, inputValue])
-    setInputValue('')
+    // setMessages((prevMessages) => [...prevMessages, inputValue])
+    // setInputValue('')
+    enviarPregunta()
   }, [inputValue])
 
   const mostrarUltimoMensaje = useCallback(() => {

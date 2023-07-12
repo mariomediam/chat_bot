@@ -150,3 +150,4 @@ CORS_ALLOW_HEADERS = [
 ]
 
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
+

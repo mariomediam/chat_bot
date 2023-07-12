@@ -18,7 +18,7 @@ services:
       - '3308:3306'
     networks:
       backend:
-        ipv4_address: 192.20.0.6
+        ipv4_address: 192.168.17.101
     environment:
       MYSQL_DATABASE: project
       MYSQL_ROOT_PASSWORD: password
@@ -47,7 +47,7 @@ services:
       - mysql
     networks:
       backend:
-        ipv4_address: 192.20.0.5
+        ipv4_address: 192.168.17.102
 
   frontend:
     container_name: docker_react
@@ -62,7 +62,7 @@ services:
       - /code/node_modules
     networks:
       backend:
-        ipv4_address: 192.20.0.7
+        ipv4_address: 192.168.17.44
     depends_on:
       - web
     environment:
@@ -74,4 +74,4 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 192.20.0.0/24
+        - subnet: 192.168.17.0/24
